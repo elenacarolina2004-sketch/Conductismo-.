@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Qué tan conductista eres? | Simulador de decisiones docentes</title>
+    <style>
+        /* CSS RESET & VARIABLES */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-color: #f0f4f9;
+            --card-bg: #ffffff;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary: #8b5cf6;
+            --accent: #f59e0b;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* CARD CONTAINERS */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .view.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* TYPOGRAPHY */
+        h1 {
+            font-size: 2.2rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hook-phrase {
+            font-size: 1.25rem;
+            text-align: center;
+            color: var(--text-main);
+            font-weight: 600;
+            margin: 25px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            filter: brightness(1.05);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* PROGRESS BAR */
+        .header-progress {
+            margin-bottom: 30px;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .progress-track {
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.4s ease;
+            border-radius: 20px;
+        }
+
+        /* SITUATION SCREEN */
+        .situation-title {
+            font-size: 1.4rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .situation-context {
+            font-size: 1.1rem;
+            color: #334155;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .option-card {
+            padding: 18px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            background-color: #fff;
+        }
+
+        .option-card:hover {
+            border-color: #93c5fd;
+            background-color: #f8fafc;
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: #eff6ff;
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .option-indicator {
+            min-width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            margin-top: 2px;
+        }
+
+        .option-card.selected .option-indicator {
+            border-color: var(--primary);
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .option-text {
+            font-size: 1rem;
+            color: var(--text-main);
+            flex: 1;
+        }
+
+        .feedback-toast {
+            min-height: 24px;
+            font-weight: 600;
+            color: var(--success);
+            text-align: center;
+            margin-bottom: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feedback-toast.visible {
+            opacity: 1;
+        }
+
+        /* LOADING ANIMATION */
+        .loading-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* RESULTS SCREEN */
+        .score-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 15px auto;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) calc(var(--percentage) * 1%), #e2e8f0 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .gauge-inner {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .gauge-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .profile-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .profile-desc {
+            text-align: center;
+            font-size: 1rem;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            margin-bottom: 30px;
+        }
+
+        .section-block {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .decisions-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .decision-item {
+            font-size: 0.95rem;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-left: 3px solid var(--secondary);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .pedagogical-card {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid #bae6fd;
+            margin-top: 20px;
+        }
+
+        .pedagogical-card h3 {
+            color: #0369a1;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .pedagogical-card p {
+            color: #0c4a6e;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .pedagogical-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* INTERACTIVE SLIDER */
+        .interactive-reflection {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .slider-control {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            accent-color: var(--secondary);
+            cursor: pointer;
+        }
+
+        .reflection-note {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        /* THEORY MAP */
+        .theory-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e293b;
+            color: white;
+            padding: 15px 10px;
+            border-radius: var(--radius-md);
+            margin: 15px 0;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .theory-step {
+            flex: 1;
+        }
+
+        .theory-arrow {
+            color: var(--accent);
+        }
+
+        .authors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .author-card {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .author-card strong {
+            display: block;
+            color: var(--text-main);
+        }
+
+        .author-card span {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .final-quote {
+            text-align: center;
+            padding: 25px 0 10px 0;
+        }
+
+        .final-quote p:first-child {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .final-quote p:last-child {
+            font-size: 1rem;
+            color: var(--secondary);
+            font-style: italic;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 640px) {
+            .card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .hook-phrase {
+                font-size: 1.05rem;
+            }
+
+            .theory-flow {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .theory-arrow {
+                transform: rotate(90deg);
+            }
+
+            .slider-labels {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        
+        <div id="view-start" class="view active">
+            <h1>¿QUÉ TAN CONDUCTISTAS ERES?</h1>
+            <div class="subtitle">Un simulador de decisiones docentes</div>
+            
+            <div class="hook-phrase">
+                "Hoy no vas a estudiar el conductismo. Vas a experimentarlo."
+            </div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p>En cada situación tendrás que decidir qué harías como docente.</p>
+                <p>Cada decisión modificará tu resultado final.</p>
+            </div>
+
+            <button class="btn" id="btn-start">COMENZAR EXPERIENCIA</button>
+
+            <div style="text-align: center; margin-top: 20px; font-weight: 600; font-size: 0.85rem; color: var(--text-muted);">
+                5 situaciones · 5 decisiones · 1 resultado
+            </div>
+        </div>
+
+        <div id="view-game" class="view">
+            <div class="header-progress">
+                <div class="progress-meta">
+                    <span id="situation-indicator">Situación 1 de 5</span>
+                    <span id="progress-percent">20%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <h2 class="situation-title" id="situation-title">Título de la situación</h2>
+            <div class="situation-context" id="situation-context">Contexto...</div>
+
+            <div class="options-container" id="options-container">
+                </div>
+
+            <div class="feedback-toast" id="feedback-toast">Decisión registrada.</div>
+
+            <button class="btn" id="btn-next" disabled>CONTINUAR</button>
+        </div>
+
+        <div id="view-loading" class="view">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <h2>ANALIZANDO TUS DECISIONES...</h2>
+                <p>Procesando patrones de estimulación, respuesta y consecuencias...</p>
+            </div>
+        </div>
+
+        <div id="view-results" class="view">
+            <div class="subtitle">Resultado del experimento</div>
+            <h2 style="text-align: center; margin-bottom: 15px;">TU NIVEL CONDUCTISTA</h2>
+
+            <div class="score-display">
+                <div class="gauge-container" id="gauge-bg">
+                    <div class="gauge-inner">
+                        <span class="gauge-value" id="score-percentage">0%</span>
+                        <span class="gauge-label">Conductismo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-title" id="profile-title">Cargando perfil...</div>
+            <div class="profile-desc" id="profile-desc">Cargando descripción...</div>
+
+            <div class="section-block">
+                <div class="section-title">¿Qué hiciste?</div>
+                <ul class="decisions-list" id="user-decisions-list">
+                    </ul>
+            </div>
+
+            <div class="section-block">
+                <div class="section-title">Los principios conductistas que aparecieron</div>
+                <div class="tags-container" id="principles-tags">
+                    </div>
+            </div>
+
+            <div class="section-block">
+                <div class="pedagogical-card">
+                    <h3>¿SER CONDUCTISTA ES SER UN MAL DOCENTE?</h3>
+                    <p><strong>NO necesariamente.</strong></p>
+                    <p>El conductismo puede ser útil en educación para desarrollar hábitos, automatizar habilidades, establecer rutinas, reforzar determinadas conductas y proporcionar retroalimentación inmediata.</p>
+                    <p>Sin embargo, si se utiliza como único enfoque, puede dejar en segundo plano procesos como la autonomía, la creatividad, la comprensión profunda y el pensamiento crítico.</p>
+                </div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-title">Reflexión Final</div>
+                <div class="interactive-reflection">
+                    <p style="font-weight: 700; color: var(--text-main); margin-bottom: 15px;">¿Qué debería hacer un buen docente?</p>
+                    <div class="slider-labels">
+                        <span>CONTROLAR LA CONDUCTA</span>
+                        <span>FAVORECER LA AUTONOMÍA</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="50" class="slider-control" id="reflection-slider">
+                    <div class="reflection-note">
+                        En educación, diferentes enfoques pueden complementarse dependiendo del objetivo de aprendizaje.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-title">AHORA SÍ: DESCUBRAMOS EL CONDUCTISMO</div>
+                
+                <div class="theory-flow">
+                    <div class="theory-step">ESTÍMULO</div>
+                    <div class="theory-arrow">→</div>
+                    <div class="theory-step">RESPUESTA</div>
+                    <div class="theory-arrow">→</div>
+                    <div class="theory-step">CONSECUENCIA</div>
+                    <div class="theory-arrow">→</div>
+                    <div class="theory-step">CAMBIO EN LA CONDUCTA</div>
+                </div>
+
+                <div class="authors-grid">
+                    <div class="author-card">
+                        <strong>Pavlov</strong>
+                        <span>Condicionamiento clásico</span>
+                    </div>
+                    <div class="author-card">
+                        <strong>Watson</strong>
+                        <span>Conducta observable</span>
+                    </div>
+                    <div class="author-card">
+                        <strong>Thorndike</strong>
+                        <span>Ley del efecto</span>
+                    </div>
+                    <div class="author-card">
+                        <strong>Skinner</strong>
+                        <span>Condicionamiento operante</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="final-quote">
+                <p>"El conductismo no solo se estudia: también puede experimentarse."</p>
+                <p>Ahora pregúntate: ¿qué consecuencias utilizas tú para favorecer el aprendizaje?</p>
+            </div>
+
+            <button class="btn" id="btn-restart" style="margin-top: 25px;">REINICIAR EXPERIENCIA</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* DATOS DE LAS SITUACIONES */
+    const situations = [
+        {
+            id: 1,
+            title: "Una respuesta correcta",
+            context: "María responde correctamente una pregunta durante la clase. Como docente, ¿qué haces?",
+            options: [
+                {
+                    text: "Le preguntas cómo llegó a esa respuesta y le pides que explique su razonamiento.",
+                    score: 0,
+                    summary: "Elegiste indagar sobre el proceso de razonamiento interno de la estudiante.",
+                    principles: ["Cognición"]
+                },
+                {
+                    text: "Le dices: '¡Excelente! Has ganado un punto'.",
+                    score: 10,
+                    summary: "Elegiste utilizar un punto como recompensa positiva inmediata.",
+                    principles: ["Refuerzo positivo", "Conducta observable"]
+                },
+                {
+                    text: "Le dices que continúe con el siguiente ejercicio.",
+                    score: 5,
+                    summary: "Elegiste dar continuidad a la tarea sin otorgar un reforzador explícito.",
+                    principles: ["Retroalimentación neutra"]
+                }
+            ]
+        },
+        {
+            id: 2,
+            title: "Cuando el estudiante se equivoca",
+            context: "Juan responde incorrectamente tres veces el mismo ejercicio. ¿Qué haces?",
+            options: [
+                {
+                    text: "Analizas con él qué dificultad está teniendo y le pides que explique qué está pensando.",
+                    score: 0,
+                    summary: "Elegiste analizar la dificultad cognitiva y la metacognición del estudiante.",
+                    principles: ["Metacognición"]
+                },
+                {
+                    text: "Le dices: 'Inténtalo nuevamente. Si respondes correctamente, ganas un punto'.",
+                    score: 10,
+                    summary: "Elegiste utilizar repetición de la tarea guiada por un incentivo o premio.",
+                    principles: ["Repetición", "Refuerzo positivo", "Estímulo-respuesta"]
+                },
+                {
+                    text: "Le quitas un punto por cada respuesta incorrecta.",
+                    score: 8,
+                    summary: "Elegiste penalizar la respuesta errónea para reducir la conducta no deseada.",
+                    principles: ["Castigo", "Conducta observable"]
+                }
+            ]
+        },
+        {
+            id: 3,
+            title: "¿Cómo enseñarías las tablas?",
+            context: "Quieres que tus estudiantes automaticen las tablas de multiplicar. ¿Qué estrategia eliges?",
+            options: [
+                {
+                    text: "Les propones resolver una situación cotidiana que requiera utilizar multiplicaciones.",
+                    score: 2,
+                    summary: "Elegiste el aprendizaje contextualizado mediante resolución de problemas.",
+                    principles: ["Aprendizaje significativo"]
+                },
+                {
+                    text: "Realizan ejercicios repetitivos y reciben puntos por cada respuesta correcta.",
+                    score: 10,
+                    summary: "Elegiste el entrenamiento repetitivo con incentivos para fijar la respuesta.",
+                    principles: ["Repetición", "Automatización", "Estímulo-respuesta", "Refuerzo positivo"]
+                },
+                {
+                    text: "Trabajan en parejas explicándose diferentes estrategias para llegar al resultado.",
+                    score: 1,
+                    summary: "Elegiste el trabajo colaborativo e intercambio de estrategias.",
+                    principles: ["Aprendizaje social"]
+                }
+            ]
+        },
+        {
+            id: 4,
+            title: "El estudiante que termina primero",
+            context: "Sofía termina correctamente todos los ejercicios antes que sus compañeros. ¿Qué haces?",
+            options: [
+                {
+                    text: "Le das una insignia de 'Estudiante estrella'.",
+                    score: 10,
+                    summary: "Elegiste entregar una insignia visible como reforzador de conducta.",
+                    principles: ["Refuerzo positivo", "Conducta observable"]
+                },
+                {
+                    text: "Le preguntas qué estrategia utilizó para resolver los ejercicios.",
+                    score: 0,
+                    summary: "Elegiste profundizar en sus estrategias de resolución.",
+                    principles: ["Retroalimentación informativa"]
+                },
+                {
+                    text: "Le permites elegir libremente qué actividad quiere realizar después.",
+                    score: 3,
+                    summary: "Elegiste otorgar autonomía y libertad de elección como consecuencia.",
+                    principles: ["Autonomía"]
+                }
+            ]
+        },
+        {
+            id: 5,
+            title: "Una conducta que quieres modificar",
+            context: "Pedro interrumpe constantemente durante las explicaciones. ¿Qué haces?",
+            options: [
+                {
+                    text: "Cuando participa respetando los turnos, reconoces inmediatamente esa conducta.",
+                    score: 8,
+                    summary: "Elegiste el moldeamiento reforzando la conducta alternativa deseada.",
+                    principles: ["Refuerzo positivo", "Modificación de conducta", "Conducta observable"]
+                },
+                {
+                    text: "Le quitas 5 puntos cada vez que interrumpe.",
+                    score: 10,
+                    summary: "Elegiste la supresión de puntos como consecuencia a la interrupción.",
+                    principles: ["Castigo", "Modificación de conducta", "Conducta observable"]
+                },
+                {
+                    text: "Hablas individualmente con él para comprender qué está ocurriendo.",
+                    score: 0,
+                    summary: "Elegiste el diálogo individual para indagar las causas subyacentes.",
+                    principles: ["Enfoque relacional"]
+                }
+            ]
+        }
+    ];
+
+    /* ESTADO DE LA APLICACIÓN */
+    let currentSituationIndex = 0;
+    let selectedOptions = []; // Almacena el índice de la opción elegida por situación
+
+    /* ELEMENTOS DEL DOM */
+    const views = {
+        start: document.getElementById('view-start'),
+        game: document.getElementById('view-game'),
+        loading: document.getElementById('view-loading'),
+        results: document.getElementById('view-results')
+    };
+
+    const btnStart = document.getElementById('btn-start');
+    const btnNext = document.getElementById('btn-next');
+    const btnRestart = document.getElementById('btn-restart');
+
+    const situationIndicator = document.getElementById('situation-indicator');
+    const progressPercent = document.getElementById('progress-percent');
+    const progressFill = document.getElementById('progress-fill');
+    const situationTitle = document.getElementById('situation-title');
+    const situationContext = document.getElementById('situation-context');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackToast = document.getElementById('feedback-toast');
+
+    /* NAVEGACIÓN DE VISTAS */
+    function switchView(viewName) {
+        Object.keys(views).forEach(key => {
+            views[key].classList.remove('active');
+        });
+        views[viewName].classList.add('active');
+    }
+
+    /* INICIALIZAR JUEGO */
+    function startGame() {
+        currentSituationIndex = 0;
+        selectedOptions = [];
+        switchView('game');
+        loadSituation();
+    }
+
+    /* CARGAR SITUACIÓN ACTUAL */
+    function loadSituation() {
+        const data = situations[currentSituationIndex];
+        
+        // Actualizar Progreso
+        const progressNum = currentSituationIndex + 1;
+        const total = situations.length;
+        const percentage = (progressNum / total) * 100;
+
+        situationIndicator.textContent = `Situación ${progressNum} de ${total}`;
+        progressPercent.textContent = `${Math.round(percentage)}%`;
+        progressFill.style.width = `${percentage}%`;
+
+        // Textos de la Situación
+        situationTitle.textContent = data.title;
+        situationContext.textContent = data.context;
+
+        // Resetear Estados
+        optionsContainer.innerHTML = '';
+        feedbackToast.classList.remove('visible');
+        btnNext.disabled = true;
+
+        // Cargar Opciones
+        const letters = ['A', 'B', 'C'];
+        data.options.forEach((opt, idx) => {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.dataset.index = idx;
+
+            card.innerHTML = `
+                <div class="option-indicator">${letters[idx]}</div>
+                <div class="option-text">${opt.text}</div>
+            `;
+
+            card.addEventListener('click', () => selectOption(idx));
+            optionsContainer.appendChild(card);
+        });
+    }
+
+    /* SELECCIONAR OPCIÓN */
+    function selectOption(index) {
+        // Guardar respuesta seleccionada
+        selectedOptions[currentSituationIndex] = index;
+
+        // Actualizar UI Opciones
+        const cards = optionsContainer.querySelectorAll('.option-card');
+        cards.forEach((card, idx) => {
+            if (idx === index) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+
+        // Mostrar Feedback sutil sin revelar puntuación
+        feedbackToast.classList.add('visible');
+
+        // Habilitar Botón Avanzar
+        btnNext.disabled = false;
+    }
+
+    /* AVANZAR A LA SIGUIENTE SITUACIÓN O FINALIZAR */
+    function handleNext() {
+        if (selectedOptions[currentSituationIndex] === undefined) return;
+
+        if (currentSituationIndex < situations.length - 1) {
+            currentSituationIndex++;
+            loadSituation();
+        } else {
+            processResults();
+        }
+    }
+
+    /* PROCESAR Y MOSTRAR RESULTADOS */
+    function processResults() {
+        switchView('loading');
+
+        setTimeout(() => {
+            calculateAndDisplayResults();
+            switchView('results');
+        }, 1500); // Pequeña transición para impacto visual
+    }
+
+    function calculateAndDisplayResults() {
+        let scoreTotal = 0;
+        let userSummaries = [];
+        let allPrinciples = new Set();
+
+        selectedOptions.forEach((optIndex, situationIdx) => {
+            const optData = situations[situationIdx].options[optIndex];
+            scoreTotal += optData.score;
+            userSummaries.push(`Situación ${situationIdx + 1}: ${optData.summary}`);
+            optData.principles.forEach(p => allPrinciples.add(p));
+        });
+
+        // Cálculo porcentaje exacto
+        const percentage = Math.round((scoreTotal / 50) * 100);
+
+        // Medidor Visual
+        document.getElementById('gauge-bg').style.setProperty('--percentage', percentage);
+        document.getElementById('score-percentage').textContent = `${percentage}%`;
+
+        // Clasificación
+        let profile = {};
+        if (percentage <= 25) {
+            profile = {
+                title: "Explorador/a",
+                desc: "Tus decisiones se alejan de una lógica conductista, priorizando la metacognición, el diálogo y el procesamiento interno del estudiante."
+            };
+        } else if (percentage <= 50) {
+            profile = {
+                title: "Conductismo ocasional",
+                desc: "Incorporas algunos elementos conductistas como apoyos puntuales, combinándolos con otras estrategias de aula."
+            };
+        } else if (percentage <= 75) {
+            profile = {
+                title: "Docente conductista",
+                desc: "Utilizas frecuentemente estímulos, respuestas y consecuencias explícitas para guiar y moldear el aprendizaje."
+            };
+        } else {
+            profile = {
+                title: "Maestro/a del condicionamiento",
+                desc: "Tus decisiones están fuertemente orientadas al conductismo, basándote de forma sistemática en estímulos, refuerzos y modificación de conducta."
+            };
+        }
+
+        document.getElementById('profile-title').textContent = profile.title;
+        document.getElementById('profile-desc').textContent = profile.desc;
+
+        // Lista de Decisiones
+        const decisionsList = document.getElementById('user-decisions-list');
+        decisionsList.innerHTML = '';
+        userSummaries.forEach(sum => {
+            const li = document.createElement('li');
+            li.className = 'decision-item';
+            li.textContent = sum;
+            decisionsList.appendChild(li);
+        });
+
+        // Principios Conductistas que Aparecieron
+        const tagsContainer = document.getElementById('principles-tags');
+        tagsContainer.innerHTML = '';
+        allPrinciples.forEach(p => {
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.textContent = p;
+            tagsContainer.appendChild(span);
+        });
+    }
+
+    /* EVENT LISTENERS */
+    btnStart.addEventListener('click', startGame);
+    btnNext.addEventListener('click', handleNext);
+    btnRestart.addEventListener('click', startGame);
+
+</script>
+</body>
+</html>
